@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compile Online Prototype</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Compile Online Prototype</h1>
+        <p>Drag and drop cards across zones. Share room ID with your friend to sync the board.</p>
+      </div>
+      <form id="room-form" class="room-form">
+        <input id="player-name" type="text" placeholder="Player name" maxlength="24" required />
+        <input id="room-id" type="text" placeholder="Room ID (e.g. compile-night)" required />
+        <button type="submit">Join Room</button>
+      </form>
+    </header>
+
+    <aside class="sidebar">
+      <section>
+        <h2>Players</h2>
+        <ul id="players-list"></ul>
+      </section>
+
+      <section>
+        <h2>Card Library</h2>
+        <p class="muted">This prototype ships with sample cards only. Use the official library link for full cards.</p>
+        <div id="library"></div>
+        <a href="https://ryanascherr.github.io/compile/" target="_blank" rel="noreferrer">Open official card browser ↗</a>
+      </section>
+
+      <section>
+        <h2>Rules & Directions</h2>
+        <ul>
+          <li><a href="https://www.dropbox.com/scl/fi/4euibgcvbyxufqvm08fam/COMP-MN01_Rulesheet.pdf?rlkey=ewp7j0glzjct6evffzp0t011k&e=1&st=vyue05bi&dl=0" target="_blank" rel="noreferrer">Open complete rules PDF ↗</a></li>
+          <li><button id="show-help">Show in-game quick guide</button></li>
+        </ul>
+      </section>
+    </aside>
+
+    <main class="board-wrap">
+      <section class="board-row">
+        <div class="zone" data-zone="opponentField">
+          <h3>Opponent Field</h3>
+          <div class="cards" id="opponentField"></div>
+        </div>
+      </section>
+      <section class="board-row middle">
+        <div class="zone" data-zone="deck">
+          <h3>Deck</h3>
+          <div class="cards" id="deck"></div>
+        </div>
+        <div class="zone" data-zone="discard">
+          <h3>Discard</h3>
+          <div class="cards" id="discard"></div>
+        </div>
+      </section>
+      <section class="board-row">
+        <div class="zone" data-zone="playerField">
+          <h3>Your Field</h3>
+          <div class="cards" id="playerField"></div>
+        </div>
+      </section>
+      <section class="board-row">
+        <div class="zone" data-zone="hand">
+          <h3>Your Hand</h3>
+          <div class="cards" id="hand"></div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="help-dialog">
+      <h2>Quick Guide</h2>
+      <ol>
+        <li>Join the same room ID as your friend.</li>
+        <li>Drag cards from your hand/deck onto any board zone.</li>
+        <li>Use the library panel to review card text and plan your turn.</li>
+        <li>Keep the rules PDF open for full timing and keyword reference.</li>
+      </ol>
+      <form method="dialog">
+        <button>Close</button>
+      </form>
+    </dialog>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="cards.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
