@@ -19,7 +19,7 @@ body {
   color: var(--text);
   font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif;
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 340px 1fr;
   grid-template-rows: auto 1fr;
 }
 
@@ -94,6 +94,14 @@ body {
   font-size: 0.9rem;
 }
 
+.compact {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 3px;
+  color: var(--muted);
+}
+
 .board-wrap {
   padding: 16px;
   overflow: auto;
@@ -136,7 +144,7 @@ body {
 }
 
 .card {
-  width: 140px;
+  width: 150px;
   min-height: 86px;
   background: var(--card);
   border: 1px solid #4a598d;
@@ -145,18 +153,32 @@ body {
   cursor: grab;
 }
 
+.card.down {
+  background: repeating-linear-gradient(
+    135deg,
+    #2b3354,
+    #2b3354 6px,
+    #1f2745 6px,
+    #1f2745 12px
+  );
+}
+
+.library-card {
+  cursor: default;
+}
+
 .card:active {
   cursor: grabbing;
 }
 
 .card h4 {
   margin: 0 0 6px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .card p {
-  margin: 0;
-  font-size: 0.78rem;
+  margin: 0 0 4px;
+  font-size: 0.75rem;
   color: #dbe4ff;
 }
 
@@ -171,12 +193,40 @@ body {
   color: var(--muted);
 }
 
+.log-list {
+  margin: 0;
+  padding-left: 18px;
+  max-height: 240px;
+  overflow: auto;
+  display: grid;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #dbe4ff;
+}
+
 dialog {
   border: 1px solid #3f4a74;
   background: #11172b;
   color: var(--text);
   border-radius: 10px;
-  max-width: 520px;
+  max-width: 540px;
+}
+
+.choice-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.choice-button {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #3f4a74;
+  background: #1c2542;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
 }
 
 @media (max-width: 1050px) {

@@ -11,7 +11,9 @@ const initialZones = {
 
 const state = {
   roomId: null,
-  zones: structuredClone(initialZones)
+  playerName: 'Player',
+  zones: structuredClone(initialZones),
+  log: []
 };
 
 const roomForm = document.getElementById('room-form');
@@ -21,6 +23,91 @@ const playersList = document.getElementById('players-list');
 const library = document.getElementById('library');
 const helpDialog = document.getElementById('help-dialog');
 const showHelpButton = document.getElementById('show-help');
+const logList = document.getElementById('log-list');
+
+const choiceDialog = document.getElementById('choice-dialog');
+const choiceTitle = document.getElementById('choice-title');
+const choiceDescription = document.getElementById('choice-description');
+const choiceOptions = document.getElementById('choice-options');
+
+let pendingChoiceResolver = null;
+
+function getState() {
+  return state;
+}
+
+function setState(nextState) {
+  state.zones = nextState.zones;
+}
+
+function addLog(entry) {
+  state.log.unshift(`[${new Date().toLocaleTimeString()}] ${entry}`);
+  state.log = state.log.slice(0, 80);
+  renderLog();
+}
+
+function emitStateUpdate() {
+  if (!state.roomId) {
+    return;
+  }
+
+  socket.emit('state-update', {
+    roomId: state.roomId,
+    zones: state.zones
+  });
+}
+
+function renderLog() {
+  logList.innerHTML = '';
+  for (const message of state.log) {
+    const li = document.createElement('li');
+    li.textContent = message;
+    logList.appendChild(li);
+  }
+}
+
+function queuePrompt({ title, description, choices }) {
+  return new Promise((resolve) => {
+    choiceTitle.textContent = title;
+    choiceDescription.textContent = description || '';
+    choiceOptions.innerHTML = '';
+
+    for (const choice of choices) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'choice-button';
+      button.textContent = choice.label;
+      button.addEventListener('click', () => {
+        pendingChoiceResolver = null;
+        choiceDialog.close();
+        resolve(choice.id);
+      });
+      choiceOptions.appendChild(button);
+    }
+
+    pendingChoiceResolver = resolve;
+    choiceDialog.showModal();
+  });
+}
+
+choiceDialog.addEventListener('close', () => {
+  if (choiceDialog.returnValue === 'cancel' && pendingChoiceResolver) {
+    const resolver = pendingChoiceResolver;
+    pendingChoiceResolver = null;
+    resolver(null);
+  }
+});
+
+const engine = window.CompileGameLogic.createEngine({
+  getState,
+  setState,
+  queuePrompt,
+  addLog,
+  syncState: () => {
+    renderZones();
+    emitStateUpdate();
+  }
+});
 
 showHelpButton.addEventListener('click', () => {
   helpDialog.showModal();
@@ -33,10 +120,13 @@ function renderCard(card, zoneName, index) {
   cardEl.dataset.sourceZone = zoneName;
   cardEl.dataset.index = String(index);
 
+  const hiddenClass = card.facing === 'down' ? 'down' : '';
+  cardEl.classList.add(hiddenClass);
+
   cardEl.innerHTML = `
     <h4>${card.name}</h4>
-    <p><strong>${card.type}</strong> • Cost ${card.cost}</p>
-    <p>${card.text}</p>
+    <p><strong>${card.protocol || 'Neutral'}</strong> • Value ${card.value ?? 2}</p>
+    <p>${card.facing === 'down' ? 'Face-down card' : card.effectText || 'No immediate effect.'}</p>
   `;
 
   cardEl.addEventListener('dragstart', (event) => {
@@ -61,25 +151,26 @@ function renderLibrary() {
   library.innerHTML = '';
   for (const card of window.COMPILE_CARDS) {
     const entry = document.createElement('div');
-    entry.className = 'card';
+    entry.className = 'card library-card';
     entry.innerHTML = `
       <h4>${card.name}</h4>
-      <p><strong>${card.type}</strong> • Cost ${card.cost}</p>
-      <p>${card.text}</p>
+      <p><strong>${card.protocol}</strong> • Value ${card.value}</p>
+      <p>${card.effectText}</p>
     `;
     library.appendChild(entry);
   }
 }
 
-function emitStateUpdate() {
-  if (!state.roomId) {
+async function maybeResolvePlayEffect({ sourceZone, destinationZone, card }) {
+  const enteringField = destinationZone === 'playerField' || destinationZone === 'opponentField';
+  const fromHand = sourceZone === 'hand';
+
+  if (!enteringField || !fromHand || !card) {
     return;
   }
 
-  socket.emit('state-update', {
-    roomId: state.roomId,
-    zones: state.zones
-  });
+  addLog(`${state.playerName} played ${card.name} (${card.protocol}).`);
+  await engine.runCardPlayEffects(card, { actor: state.playerName });
 }
 
 function setupDropTargets() {
@@ -95,7 +186,7 @@ function setupDropTargets() {
       zone.classList.remove('active');
     });
 
-    zone.addEventListener('drop', (event) => {
+    zone.addEventListener('drop', async (event) => {
       event.preventDefault();
       zone.classList.remove('active');
 
@@ -118,6 +209,12 @@ function setupDropTargets() {
       state.zones[zoneName].push(movedCard);
       renderZones();
       emitStateUpdate();
+
+      await maybeResolvePlayEffect({
+        sourceZone,
+        destinationZone: zoneName,
+        card: movedCard
+      });
     });
   });
 }
@@ -131,7 +228,9 @@ roomForm.addEventListener('submit', (event) => {
   }
 
   state.roomId = roomId;
+  state.playerName = playerName;
   socket.emit('join-room', { roomId, playerName });
+  addLog(`${playerName} joined room '${roomId}'.`);
 });
 
 socket.on('state-sync', (zones) => {
@@ -150,4 +249,5 @@ socket.on('room-presence', ({ players }) => {
 
 renderLibrary();
 renderZones();
+renderLog();
 setupDropTargets();

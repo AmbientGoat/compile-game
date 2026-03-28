@@ -1,58 +1,97 @@
 window.COMPILE_CARDS = [
   {
-    id: 'c-001',
-    name: 'Boot Sequence',
-    type: 'Action',
-    cost: 1,
-    text: 'Draw one card. If this is your first action this turn, draw one additional card.'
+    id: 'mn02-clarity-01',
+    name: 'Clarity / Reveal Hand',
+    set: 'MN02',
+    protocol: 'Clarity',
+    value: 1,
+    facing: 'up',
+    effectText: 'Your opponent reveals their hand.',
+    effects: [{ type: 'reveal-hand', target: 'opponent' }]
   },
   {
-    id: 'c-002',
-    name: 'Optimized Build',
-    type: 'Upgrade',
-    cost: 2,
-    text: 'Attach to a program. Attached program gets +1 power while this remains in play.'
+    id: 'mn02-clarity-02',
+    name: 'Clarity / Value-5 Search',
+    set: 'MN02',
+    protocol: 'Clarity',
+    value: 3,
+    facing: 'up',
+    effectText: 'Reveal your deck. Draw 1 card with value 5 revealed this way. Shuffle your deck.',
+    effects: [{ type: 'draw-value-from-deck', value: 5, amount: 1 }]
   },
   {
-    id: 'c-003',
-    name: 'Critical Patch',
-    type: 'Action',
-    cost: 2,
-    text: 'Remove one debuff from a program, then it may attack this turn.'
+    id: 'mn02-chaos-01',
+    name: 'Chaos / Draw-Rearrange-Covered',
+    set: 'MN02',
+    protocol: 'Chaos',
+    value: 2,
+    facing: 'up',
+    effectText: 'Draw 1 card, then rearrange one protocol.',
+    effects: [
+      { type: 'draw', amount: 1 },
+      { type: 'note-choice', message: 'Rearrange protocols manually (line/protocol movement UI is next).'}
+    ]
   },
   {
-    id: 'c-004',
-    name: 'Firewall Node',
-    type: 'Program',
-    cost: 3,
-    text: 'Guard. Opponents must target this before other programs.'
+    id: 'mn02-fear-01',
+    name: 'Fear / Shift-Discard',
+    set: 'MN02',
+    protocol: 'Fear',
+    value: 2,
+    facing: 'up',
+    effectText: 'Shift one uncovered friendly card, then discard 1 card.',
+    effects: [
+      { type: 'shift-friendly-choice' },
+      { type: 'discard-from-hand', amount: 1 }
+    ]
   },
   {
-    id: 'c-005',
-    name: 'Memory Leak',
-    type: 'Disruption',
-    cost: 2,
-    text: 'Target opponent discards one random card.'
+    id: 'mn02-corruption-01',
+    name: 'Corruption / Flip-Discard',
+    set: 'MN02',
+    protocol: 'Corruption',
+    value: 2,
+    facing: 'up',
+    effectText: 'Flip one field card. Then discard 1 card.',
+    effects: [
+      { type: 'flip-field-choice' },
+      { type: 'discard-from-hand', amount: 1 }
+    ]
   },
   {
-    id: 'c-006',
-    name: 'Quantum Worker',
-    type: 'Program',
-    cost: 3,
-    text: 'On deploy: gain 1 temporary energy this turn.'
+    id: 'mn02-smoke-01',
+    name: 'Smoke / Face-down Shift',
+    set: 'MN02',
+    protocol: 'Smoke',
+    value: 2,
+    facing: 'up',
+    effectText: 'Choose one card and set it face-down, then shift it.',
+    effects: [
+      { type: 'set-facedown-choice' },
+      { type: 'shift-any-choice' }
+    ]
   },
   {
-    id: 'c-007',
-    name: 'Rapid Prototype',
-    type: 'Action',
-    cost: 1,
-    text: 'Look at top 3 cards of your deck. Put one in your hand and the rest on bottom.'
+    id: 'mn02-time-01',
+    name: 'Time / Discard-Trash',
+    set: 'MN02',
+    protocol: 'Time',
+    value: 3,
+    facing: 'up',
+    effectText: 'Each player discards 1 card.',
+    effects: [{ type: 'mutual-discard', amount: 1 }]
   },
   {
-    id: 'c-008',
-    name: 'Hard Reset',
-    type: 'System',
-    cost: 4,
-    text: 'Return all upgrades to owner hands.'
+    id: 'mn02-luck-01',
+    name: 'Luck / Random-Delete-Play',
+    set: 'MN02',
+    protocol: 'Luck',
+    value: 4,
+    facing: 'up',
+    effectText: 'Randomly delete one uncovered card. Then you may play a card from hand face-down.',
+    effects: [
+      { type: 'random-delete-uncovered', amount: 1 },
+      { type: 'note-choice', message: 'Optional bonus play is not automated yet; play manually.' }
+    ]
   }
 ];

@@ -10,7 +10,7 @@
     <header class="topbar">
       <div>
         <h1>Compile Online Prototype</h1>
-        <p>Drag and drop cards across zones. Share room ID with your friend to sync the board.</p>
+        <p>Drag and drop cards to play. Resolved card effects now trigger prompts and game logs.</p>
       </div>
       <form id="room-form" class="room-form">
         <input id="player-name" type="text" placeholder="Player name" maxlength="24" required />
@@ -26,10 +26,22 @@
       </section>
 
       <section>
+        <h2>Turn Guide</h2>
+        <ol class="compact">
+          <li>Start effects</li>
+          <li>Check Control</li>
+          <li>Check Compile</li>
+          <li>Action: play one card or refresh</li>
+          <li>Check Cache</li>
+          <li>End effects</li>
+        </ol>
+      </section>
+
+      <section>
         <h2>Card Library</h2>
-        <p class="muted">This prototype ships with sample cards only. Use the official library link for full cards.</p>
+        <p class="muted">Subset of rules-based cards/effects implemented from MN02 references.</p>
         <div id="library"></div>
-        <a href="https://ryanascherr.github.io/compile/" target="_blank" rel="noreferrer">Open official card browser ↗</a>
+        <a href="https://ryanascherr.github.io/compile/" target="_blank" rel="noreferrer">Open full card browser ↗</a>
       </section>
 
       <section>
@@ -38,6 +50,11 @@
           <li><a href="https://www.dropbox.com/scl/fi/4euibgcvbyxufqvm08fam/COMP-MN01_Rulesheet.pdf?rlkey=ewp7j0glzjct6evffzp0t011k&e=1&st=vyue05bi&dl=0" target="_blank" rel="noreferrer">Open complete rules PDF ↗</a></li>
           <li><button id="show-help">Show in-game quick guide</button></li>
         </ul>
+      </section>
+
+      <section>
+        <h2>Resolution Log</h2>
+        <ul id="log-list" class="log-list"></ul>
       </section>
     </aside>
 
@@ -54,7 +71,7 @@
           <div class="cards" id="deck"></div>
         </div>
         <div class="zone" data-zone="discard">
-          <h3>Discard</h3>
+          <h3>Trash</h3>
           <div class="cards" id="discard"></div>
         </div>
       </section>
@@ -76,17 +93,27 @@
       <h2>Quick Guide</h2>
       <ol>
         <li>Join the same room ID as your friend.</li>
-        <li>Drag cards from your hand/deck onto any board zone.</li>
-        <li>Use the library panel to review card text and plan your turn.</li>
-        <li>Keep the rules PDF open for full timing and keyword reference.</li>
+        <li>Drag cards from deck/hand onto field zones.</li>
+        <li>When a face-up card is played, its effect resolves automatically.</li>
+        <li>If an effect needs a choice, pick from the prompt dialog.</li>
       </ol>
       <form method="dialog">
         <button>Close</button>
       </form>
     </dialog>
 
+    <dialog id="choice-dialog">
+      <h2 id="choice-title">Make a choice</h2>
+      <p id="choice-description"></p>
+      <div id="choice-options" class="choice-options"></div>
+      <form method="dialog">
+        <button value="cancel">Cancel</button>
+      </form>
+    </dialog>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="cards.js"></script>
+    <script src="gameLogic.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
